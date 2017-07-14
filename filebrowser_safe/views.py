@@ -318,8 +318,8 @@ def _upload_file(request):
         folder = request.POST.get('folder')
         fb_uploadurl_re = re.compile(r'^.*(%s)' % reverse("fb_upload"))
         folder = fb_uploadurl_re.sub('', folder)
-        # if "." in folder:
-        #    return HttpResponseBadRequest("")
+        if ".." in folder:
+            return HttpResponseBadRequest("")
 
         if request.FILES:
             filedata = request.FILES['Filedata']
