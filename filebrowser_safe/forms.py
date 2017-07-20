@@ -30,7 +30,7 @@ class MakeDirForm(forms.Form):
         widget=forms.TextInput(attrs=dict({'class': 'vTextField'},
         max_length=50, min_length=3)),
         label=_(u'Name'),
-        help_text=_(u'Only letters, numbers, underscores, spaces and hyphens are allowed.'),
+        help_text=_(u'Only letters, numbers, underscores, spaces and hyphens are allowed. Prohibited from starting with period or containing "..".'),
         required=True)
 
     def clean_dir_name(self):
@@ -38,7 +38,7 @@ class MakeDirForm(forms.Form):
             # only letters, numbers, underscores, spaces and hyphens are allowed.
             if not alnum_name_re.search(self.cleaned_data['dir_name']) or '..' in self.cleaned_data['dir_name'] or self.cleaned_data['dir_name'].startswith("."):
                 raise forms.ValidationError(
-                    _(u'Only letters, numbers, underscores, spaces and hyphens are allowed.'))
+                    _(u'Only letters, numbers, underscores, spaces and hyphens are allowed. Prohibited from starting with period or containing "..".'))
             # Folder must not already exist.
             if os.path.isdir(os.path.join(self.path, self.cleaned_data['dir_name'])):
                 raise forms.ValidationError(_(u'The Folder already exists.'))
