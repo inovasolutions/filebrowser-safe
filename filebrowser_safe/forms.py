@@ -36,7 +36,7 @@ class MakeDirForm(forms.Form):
     def clean_dir_name(self):
         if self.cleaned_data['dir_name']:
             # only letters, numbers, underscores, spaces and hyphens are allowed.
-            if not alnum_name_re.search(self.cleaned_data['dir_name']):
+            if not alnum_name_re.search(self.cleaned_data['dir_name']) or '..' in self.cleaned_data['dir_name'] or self.cleaned_data['dir_name'].startswith("."):
                 raise forms.ValidationError(
                     _(u'Only letters, numbers, underscores, spaces and hyphens are allowed.'))
             # Folder must not already exist.
