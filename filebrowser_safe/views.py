@@ -122,8 +122,9 @@ def browse(request):
 
         # CREATE FILEOBJECT
         url_path = "/".join([s.strip("/") for s in
-                            [get_directory(), path, file] if s.strip("/")])
+                            [get_directory(), path.replace("\\", "/"), file] if s.strip("/")])
         fileobject = FileObject(url_path)
+
 
         # FILTER / SEARCH
         append = False
@@ -136,12 +137,9 @@ def browse(request):
         if append:
             try:
                 # COUNTER/RESULTS
+                results_var['delete_total'] += 1
                 if fileobject.filetype == 'Image':
                     results_var['images_total'] += 1
-                if fileobject.filetype != 'Folder':
-                    results_var['delete_total'] += 1
-                elif fileobject.filetype == 'Folder' and fileobject.is_empty:
-                    results_var['delete_total'] += 1
                 if query.get('type') and query.get('type') in SELECT_FORMATS and fileobject.filetype in SELECT_FORMATS[query.get('type')]:
                     results_var['select_total'] += 1
                 elif not query.get('type'):
@@ -387,7 +385,7 @@ def delete(request):
 
     normalized = os.path.normpath(os.path.join(get_directory(), path, filename))
 
-    if not normalized.startswith(get_directory()) or ".." in normalized:
+    if not normalized.startswith(get_directory().strip("/")) or ".." in normalized:
         msg = _("An error occurred")
         messages.add_message(request, messages.ERROR, msg)
     elif request.GET.get('filetype') != "Folder":
@@ -476,7 +474,8 @@ def rename(request):
                 (errno, strerror) = xxx_todo_changeme1.args
                 form.errors['name'] = forms.util.ErrorList([_('Error.')])
     else:
-        form = RenameForm(abs_path, file_extension)
+        file_basename = os.path.splitext(filename)[0]
+        form = RenameForm(abs_path, file_extension, initial={'name': file_basename})
 
     return render(request, 'filebrowser/rename.html', {
         'form': form,
