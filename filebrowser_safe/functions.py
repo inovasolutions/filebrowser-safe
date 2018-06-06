@@ -37,9 +37,9 @@ def get_directory():
 def path_strip(path, root):
     if not path or not root:
         return path
-    path = os.path.normcase(path)
+    path_norm = os.path.normcase(path)
     root = os.path.normcase(root)
-    if path.startswith(root):
+    if path_norm.startswith(root):
         return path[len(root):]
     return path
 
@@ -114,7 +114,7 @@ def get_breadcrumbs(query, path):
     breadcrumbs = []
     dir_query = ""
     if path:
-        for item in path.split(os.sep):
+        for item in path.split("/"):
             dir_query = os.path.join(dir_query, item)
             breadcrumbs.append([item, dir_query])
     return breadcrumbs
