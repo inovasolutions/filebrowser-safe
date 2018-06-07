@@ -335,7 +335,8 @@ def _upload_file(request):
             file_path = os.path.join(directory, folder, filedata.name)
             remove_thumbnails(file_path)
             filedata.name = convert_filename(filedata.name)
-            file_path = os.path.join(directory, folder, filedata.name)
+            # this won't work with windows and s3 - replace the "\"
+            file_path = os.path.join(directory, folder, filedata.name).replace("\\", "/")
             remove_thumbnails(file_path)
 
             if "." in file_path and file_path.split(".")[-1].lower() in ESCAPED_EXTENSIONS:
@@ -383,7 +384,8 @@ def delete(request):
         return HttpResponseRedirect(reverse("fb_browse"))
     abs_path = os.path.join(get_directory(), path)
 
-    normalized = os.path.normpath(os.path.join(get_directory(), path, filename))
+    # windows and S3 don't work well together
+    normalized = os.path.normpath(os.path.join(get_directory(), path, filename)).replace("\\", "/")
 
     if not normalized.startswith(get_directory().strip("/")) or ".." in normalized:
         msg = _("An error occurred")
