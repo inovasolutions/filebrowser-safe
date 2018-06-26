@@ -8,7 +8,7 @@ import shutil
 # DJANGO IMPORTS
 from django.core.files.move import file_move_safe
 from django.core.files.base import ContentFile
-
+from django.conf import settings
 
 class StorageMixin(object):
     """
@@ -111,10 +111,23 @@ class S3BotoStorageMixin(StorageMixin):
         self.save(name + "/.folder", ContentFile(""))
 
     def rmtree(self, name):
-        name = self._normalize_name(self._clean_name(name))
+        # name = self._normalize_name(self._clean_name(name))
         dirlist = self.listdir(self._encode_name(name))
-        for item in dirlist:
-            item.delete()
+        for list in dirlist:
+            for item in list:
+                if self.isdir(os.path.join(name, item)):
+                    self.rmtree(os.path.join(name, item))
+                else:
+                    key = self._get_key(os.path.join(name, item))
+                    key.delete()
+
+        key = self._get_key(name)  # often end up with '.folder' zero sized items
+        if key is not None:
+            key.delete()
+
+        os_dir = os.path.join(settings.MEDIA_ROOT, name)
+        if os.path.exists(os_dir):
+            shutil.rmtree(os_dir)
 
 
 class GoogleStorageMixin(StorageMixin):
