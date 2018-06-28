@@ -115,7 +115,7 @@ class S3BotoStorageMixin(StorageMixin):
         dirlist = self.listdir(self._encode_name(name))
         for list in dirlist:
             for item in list:
-                if self.isdir(os.path.join(name, item)):
+                if self.isdir(os.path.join(name, item)) and item != ".folder":
                     self.rmtree(os.path.join(name, item))
                 else:
                     key = self._get_key(os.path.join(name, item))
